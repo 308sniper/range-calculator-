@@ -9,7 +9,7 @@ const blobOptions = () => {
 
 const openStore = (name) => {
   const options = blobOptions();
-  return options ? getStore(name, options) : getStore(name);
+  return options ? getStore({ name, ...options }) : getStore(name);
 };
 
 const stores = () => ({
@@ -113,6 +113,18 @@ exports.handler = async (event) => {
 
     if (method === "GET" && path === "/ping") {
       return json(200, { ok: true, message: "API is running." });
+    }
+
+    if (method === "GET" && path === "/diagnostics") {
+      return json(200, {
+        ok: true,
+        hasJwtSecret: Boolean(process.env.JWT_SECRET),
+        hasAdminEmail: Boolean(process.env.ADMIN_EMAIL),
+        hasBlobSiteId: Boolean(process.env.NETLIFY_BLOBS_SITE_ID || process.env.NETLIFY_SITE_ID || process.env.SITE_ID),
+        hasBlobToken: Boolean(process.env.NETLIFY_BLOBS_TOKEN || process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_TOKEN),
+        blobSiteIdSource: process.env.NETLIFY_BLOBS_SITE_ID ? "NETLIFY_BLOBS_SITE_ID" : process.env.NETLIFY_SITE_ID ? "NETLIFY_SITE_ID" : process.env.SITE_ID ? "SITE_ID" : "missing",
+        blobTokenSource: process.env.NETLIFY_BLOBS_TOKEN ? "NETLIFY_BLOBS_TOKEN" : process.env.NETLIFY_AUTH_TOKEN ? "NETLIFY_AUTH_TOKEN" : process.env.NETLIFY_TOKEN ? "NETLIFY_TOKEN" : "missing",
+      });
     }
 
     const { usersStore, dataStore, usageStore } = stores();
