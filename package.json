@@ -1,0 +1,17 @@
+{
+  "name": "308sniper-ballistics",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Netlify-hosted ballistic calculator with approved user accounts and saved range notes.",
+  "scripts": {
+    "start": "netlify dev",
+    "deploy": "netlify deploy",
+    "deploy:prod": "netlify deploy --prod"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^9.1.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^23.9.5"
+  }
+}

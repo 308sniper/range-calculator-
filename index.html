@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ballistic Range Calculator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="auth-panel auth-screen" aria-label="Account login">
+        <img class="auth-logo" src="308sniper-logo.jpg" alt="308Sniper logo" />
+        <div class="auth-copy">
+          <p class="eyebrow">Account</p>
+          <h1>308Sniper Ballistics</h1>
+          <h3 id="authStatus">Login required</h3>
+        </div>
+        <div class="auth-forms">
+          <input id="authName" placeholder="Name for registration" />
+          <input id="authEmail" type="email" placeholder="Email" />
+          <input id="authPassword" type="password" placeholder="Password" />
+          <button class="use-load-button primary-action" id="loginButton" type="button">Login</button>
+          <button class="use-load-button" id="registerButton" type="button">Register</button>
+          <button class="use-load-button" id="resetRequestButton" type="button">Request reset</button>
+          <button class="use-load-button" id="logoutButton" type="button">Logout</button>
+        </div>
+        <p class="auth-message" id="authMessage"></p>
+      </section>
+
+      <div class="app-content" id="appContent">
+        <nav class="page-nav" aria-label="App pages">
+          <button class="page-tab active" type="button" data-page="calculator">Calculator</button>
+          <button class="page-tab" type="button" data-page="range-notes">Range notes</button>
+          <button class="page-tab admin-only" type="button" data-page="admin">Admin</button>
+        </nav>
+
+        <section class="workspace app-page active" data-page-panel="calculator">
+        <aside class="control-panel" aria-label="Ballistic inputs">
+          <img class="app-logo" src="308sniper-logo.jpg" alt="308Sniper logo" />
+          <div class="brand-row">
+            <div>
+              <p class="eyebrow">308Sniper Ballistics</p>
+              <h1>Range calculator</h1>
+            </div>
+            <button class="icon-button" id="resetButton" type="button" aria-label="Reset calculator" title="Reset calculator">
+              <span aria-hidden="true">↺</span>
+            </button>
+          </div>
+
+          <div class="notice">
+            For lawful range, hunting, and education use. Confirm all data on a safe range before relying on any adjustment.
+          </div>
+
+          <form id="ballisticForm">
+            <div class="tab-bar" role="tablist" aria-label="Input groups">
+              <button type="button" class="tab-button active" data-tab="ammo">Ammo</button>
+              <button type="button" class="tab-button" data-tab="rifle">Rifle</button>
+              <button type="button" class="tab-button" data-tab="scope">Scope</button>
+              <button type="button" class="tab-button" data-tab="weather">Weather</button>
+            </div>
+
+            <section class="tab-panel active" data-panel="ammo">
+              <label>Bullet name <input name="bulletName" value="6.5 Creedmoor Match" /></label>
+              <div class="field-grid">
+                <label>Bullet weight <span>gr</span><input type="number" name="bulletWeight" value="140" min="1" step="0.1" /></label>
+                <label>Ballistic coeff. <span>G1</span><input type="number" name="bc" value="0.61" min="0.05" max="1.5" step="0.001" /></label>
+                <label>Muzzle velocity <span>fps</span><input type="number" name="muzzleVelocity" value="2710" min="300" max="5000" step="1" /></label>
+                <label>Bullet diameter <span>in</span><input type="number" name="diameter" value="0.264" min="0.05" max="1" step="0.001" /></label>
+              </div>
+            </section>
+
+            <section class="tab-panel" data-panel="rifle">
+              <label>Range unit
+                <select name="rangeUnit" id="rangeUnit">
+                  <option value="yd">Yards</option>
+                  <option value="m">Meters</option>
+                </select>
+              </label>
+              <div class="field-grid">
+                <label>Zero range <span class="range-unit-label">yd</span><input type="number" name="zeroRange" value="100" min="10" max="600" step="1" /></label>
+                <label>Sight height <span>in</span><input type="number" name="sightHeight" value="1.8" min="0.1" max="5" step="0.05" /></label>
+                <label>Range step <span class="range-unit-label">yd</span><input type="number" name="rangeStep" value="50" min="10" max="200" step="5" /></label>
+                <label>Max range <span class="range-unit-label">yd</span><input type="number" name="maxRange" value="800" min="50" max="1500" step="10" /></label>
+              </div>
+            </section>
+
+            <section class="tab-panel" data-panel="scope">
+              <label>Scope type
+                <select name="scopeType">
+                  <option value="mil">MIL / MRAD turret</option>
+                  <option value="moa">MOA turret</option>
+                  <option value="bdc">BDC reticle</option>
+                </select>
+              </label>
+              <div class="field-grid">
+                <label>Click value <span id="clickUnit">mil</span><input type="number" name="clickValue" value="0.1" min="0.01" max="1" step="0.01" /></label>
+                <label>Reticle subtension <span>unit</span><input type="number" name="reticleStep" value="0.5" min="0.1" max="5" step="0.1" /></label>
+              </div>
+              <label>Preview distance
+                <select name="previewRange" id="previewRange">
+                  <option value="auto">Auto ladder</option>
+                </select>
+              </label>
+            </section>
+
+            <section class="tab-panel" data-panel="weather">
+              <div class="field-grid">
+                <label>Temperature <span>°C</span><input type="number" name="temperature" value="15" min="-40" max="55" step="1" /></label>
+                <label>Pressure <span>inHg</span><input type="number" name="pressure" value="29.92" min="20" max="33" step="0.01" /></label>
+                <label>Humidity <span>%</span><input type="number" name="humidity" value="50" min="0" max="100" step="1" /></label>
+                <label>Altitude <span>ft</span><input type="number" name="altitude" value="0" min="-1500" max="16000" step="10" /></label>
+                <label>Wind speed <span>mph</span><input type="number" name="windSpeed" value="10" min="0" max="80" step="0.1" /></label>
+                <label>Wind angle <span>deg</span><input type="number" name="windAngle" value="90" min="0" max="180" step="1" /></label>
+              </div>
+            </section>
+          </form>
+        </aside>
+
+        <section class="results-panel" aria-label="Ballistic results">
+          <div class="hero-strip">
+            <div class="reticle-card">
+              <canvas id="reticleCanvas" width="520" height="360" aria-label="Scope reticle holdover preview"></canvas>
+            </div>
+            <div class="summary-grid" id="summaryGrid"></div>
+          </div>
+
+          <div class="toolbar">
+            <div>
+              <p class="eyebrow">Range solution</p>
+              <h2 id="solutionTitle">6.5 Creedmoor Match</h2>
+            </div>
+            <div class="segmented" aria-label="Unit display">
+              <button type="button" class="active" data-units="imperial">Imperial</button>
+              <button type="button" data-units="metric">Metric</button>
+            </div>
+          </div>
+
+          <section class="ballistic-data-panel" aria-label="Ballistic data by calibre">
+            <div class="data-header">
+              <div>
+                <p class="eyebrow">Ballistic data</p>
+                <h3>Calibre load table</h3>
+              </div>
+              <label class="inline-select">Calibre
+                <select id="calibreSelect" aria-label="Select calibre"></select>
+              </label>
+            </div>
+            <div class="table-wrap data-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Use</th>
+                    <th>Load</th>
+                    <th>Calibre</th>
+                    <th>Bullet</th>
+                    <th>Weight</th>
+                    <th>BC</th>
+                    <th>Velocity</th>
+                    <th>Energy</th>
+                    <th>Diameter</th>
+                    <th>Twist</th>
+                  </tr>
+                </thead>
+                <tbody id="calibreDataTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Range</th>
+                  <th>Drop</th>
+                  <th>Elevation</th>
+                  <th id="clickHeader">Clicks</th>
+                  <th>Wind</th>
+                  <th>Velocity</th>
+                  <th>Energy</th>
+                  <th>TOF</th>
+                </tr>
+              </thead>
+              <tbody id="rangeTable"></tbody>
+            </table>
+          </div>
+        </section>
+        </section>
+
+        <section class="notes-page app-page" data-page-panel="range-notes" aria-label="Range notes">
+        <section class="notes-tool">
+          <div class="notes-header">
+            <div>
+              <p class="eyebrow">Range notes</p>
+              <h1>Aim point record</h1>
+            </div>
+            <img class="notes-logo" src="308sniper-logo.jpg" alt="308Sniper logo" />
+          </div>
+
+          <div class="notes-layout">
+            <aside class="notes-controls">
+              <label>Scope reticle
+                <select id="noteReticleType">
+                  <option value="duplex">Duplex crosshair</option>
+                  <option value="mil-dot">Mil-dot</option>
+                  <option value="moa-hash">MOA hash</option>
+                  <option value="bdc">BDC ladder</option>
+                  <option value="tree">Christmas tree</option>
+                </select>
+              </label>
+              <div class="field-grid">
+                <label>Distance <span id="noteDistanceUnitLabel">yd</span><input id="noteDistance" type="number" value="100" min="1" step="1" /></label>
+                <label>Distance unit
+                  <select id="noteDistanceUnit">
+                    <option value="yd">Yards</option>
+                    <option value="m">Meters</option>
+                  </select>
+                </label>
+                <label>Wind <span>mph</span><input id="noteWind" type="number" value="0" min="0" step="0.1" /></label>
+                <label>Elevation hold <span>unit</span><input id="noteElevation" placeholder="e.g. 1.4 MIL" /></label>
+                <label>Ammo/load <input id="noteLoad" placeholder="e.g. .308 168 gr Match" /></label>
+              </div>
+              <label>Range notes
+                <textarea id="noteText" rows="7" placeholder="Record conditions, target, group size, corrections, or anything useful from the range."></textarea>
+              </label>
+              <div class="note-actions">
+                <button class="use-load-button" id="clearAimPoint" type="button">Clear mark</button>
+                <button class="use-load-button primary-action" id="saveRangeNote" type="button">Save note</button>
+              </div>
+            </aside>
+
+            <section class="reticle-note-panel">
+              <canvas id="noteReticleCanvas" width="900" height="620" aria-label="Clickable scope reticle for range notes"></canvas>
+              <p class="reticle-help">Click the reticle to mark your aim point.</p>
+            </section>
+          </div>
+        </section>
+
+        <section class="saved-notes-panel" aria-label="Saved range notes">
+          <div class="data-header">
+            <div>
+              <p class="eyebrow">Saved</p>
+              <h3>Range note log</h3>
+            </div>
+            <button class="use-load-button" id="clearRangeNotes" type="button">Clear notes</button>
+          </div>
+          <div class="saved-notes" id="savedNotes"></div>
+        </section>
+        </section>
+
+        <section class="admin-page app-page" data-page-panel="admin" aria-label="Admin">
+        <section class="saved-notes-panel">
+          <div class="data-header">
+            <div>
+              <p class="eyebrow">Admin</p>
+              <h1>User approvals</h1>
+            </div>
+            <button class="use-load-button" id="refreshAdminButton" type="button">Refresh</button>
+          </div>
+          <div class="table-wrap data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Last login</th>
+                  <th>Approve</th>
+                  <th>Reset password</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="saved-notes-panel">
+          <div class="data-header">
+            <div>
+              <p class="eyebrow">Admin</p>
+              <h3>Usage and reset requests</h3>
+            </div>
+          </div>
+          <div class="saved-notes" id="usageLog"></div>
+        </section>
+        </section>
+      </div>
+    </main>
+    <script src="app.js?v=15"></script>
+  </body>
+</html>
