@@ -1,10 +1,21 @@
 const crypto = require("crypto");
 const { getStore } = require("@netlify/blobs");
 
+const blobOptions = () => {
+  const siteID = process.env.NETLIFY_BLOBS_SITE_ID || process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
+  const token = process.env.NETLIFY_BLOBS_TOKEN || process.env.NETLIFY_AUTH_TOKEN || process.env.NETLIFY_TOKEN;
+  return siteID && token ? { siteID, token } : undefined;
+};
+
+const openStore = (name) => {
+  const options = blobOptions();
+  return options ? getStore(name, options) : getStore(name);
+};
+
 const stores = () => ({
-  usersStore: getStore("users"),
-  dataStore: getStore("user-data"),
-  usageStore: getStore("usage"),
+  usersStore: openStore("users"),
+  dataStore: openStore("user-data"),
+  usageStore: openStore("usage"),
 });
 
 const json = (statusCode, body) => ({
@@ -96,7 +107,6 @@ const publicUser = (user) => ({
 
 exports.handler = async (event) => {
   try {
-    const { usersStore, dataStore, usageStore } = stores();
     const path = event.path.replace(/^\/\.netlify\/functions\/api|^\/api/, "") || "/";
     const method = event.httpMethod;
     const body = parseBody(event);
@@ -104,6 +114,8 @@ exports.handler = async (event) => {
     if (method === "GET" && path === "/ping") {
       return json(200, { ok: true, message: "API is running." });
     }
+
+    const { usersStore, dataStore, usageStore } = stores();
 
   if (method === "POST" && path === "/register") {
     const email = normalizeEmail(body.email);
